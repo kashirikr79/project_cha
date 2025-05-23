@@ -1,0 +1,170 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #ffe6f0;
+    color: #333;
+    text-align: center;
+}
+
+.login-page .container {
+    padding-top: 20vh;
+}
+
+input[type="password"] {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+button {
+    background: #ff69b4;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.error {
+    color: red;
+    margin-top: 10px;
+}
+
+/* Loading Animation */
+.loading-page {
+    background: #fff0f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.heart {
+    width: 50px;
+    height: 50px;
+    background: pink;
+    transform: rotate(-45deg);
+    animation: pulse 1s infinite;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.heart::before, .heart::after {
+    content: '';
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background: pink;
+    border-radius: 50%;
+}
+
+.heart::before {
+    top: -25px;
+    left: 0;
+}
+
+.heart::after {
+    top: 0;
+    left: 25px;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1) rotate(-45deg); }
+    50% { transform: scale(1.2) rotate(-45deg); }
+    100% { transform: scale(1) rotate(-45deg); }
+}
+/* Notes Grid Layout */
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+  padding: 30px;
+  justify-items: center;
+}
+
+/* Note Card Style */
+.memory {
+  background: white;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #ffe6eb;
+  width: 100%;
+  max-width: 300px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Slight "scrapbook" tilt effect with randomness */
+.memory:nth-child(3n) {
+  transform: rotate(-1.5deg);
+}
+.memory:nth-child(4n) {
+  transform: rotate(1.2deg);
+}
+.memory:nth-child(5n) {
+  transform: rotate(-0.7deg);
+}
+.memory:nth-child(6n) {
+  transform: rotate(0.9deg);
+}
+
+/* On hover, lift and straighten slightly */
+.memory:hover {
+  transform: scale(1.03) rotate(0deg);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* Note Content */
+.caption {
+  text-align: center;
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  padding-top: 10px;
+}
+.caption strong {
+  display: block;
+  color: #333;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+/* Button link to add a note */
+.add-memory a {
+  display: inline-block;
+  margin: 20px auto;
+  background-color: #ff4d79;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+.add-memory a:hover {
+  background-color: #ff3366;
+}
+.home-button {
+    display: inline-block;
+    background-color: #ff4d79;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: bold;
+    font-family: 'Segoe UI', sans-serif;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin: 10px 0;
+}
+
+.home-button:hover {
+    background-color: #ff3366;
+    transform: translateY(-2px);
+}

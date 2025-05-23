@@ -1,0 +1,156 @@
+<?php
+session_start();
+if (!isset($_SESSION['logged_in'])) {
+    header('Location: index.php');
+    exit();
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Loading Your Memories...</title>
+    <style>
+        body.loading-page {
+            margin: 0;
+            padding: 0;
+            background: #fffafc;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            color: #ff4d79;
+        }
+
+        .loader-container {
+            text-align: center;
+        }
+
+        .heart {
+            width: 60px;
+            height: 60px;
+            background-color: #ff4d79;
+            position: relative;
+            transform: rotate(-45deg);
+            margin: 0 auto 30px;
+            animation: pulse 1s infinite;
+        }
+
+        .heart::before,
+        .heart::after {
+            content: "";
+            width: 60px;
+            height: 60px;
+            background-color: #ff4d79;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .heart::before {
+            top: -30px;
+            left: 0;
+        }
+
+        .heart::after {
+            top: 0;
+            left: 30px;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1) rotate(-45deg);
+            }
+            50% {
+                transform: scale(1.1) rotate(-45deg);
+            }
+        }
+
+        .quote {
+            font-size: 18px;
+            font-style: italic;
+            margin-bottom: 15px;
+            min-height: 50px;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-text {
+            font-size: 14px;
+            color: #b30022;
+        }
+
+        .done-text {
+            font-size: 16px;
+            color: green;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="loading-page">
+    <div class="loader-container">
+        <div class="heart"></div>
+        <div class="quote" id="quote">Loading love...</div>
+        <p class="loading-text" id="loading-dots">Loading</p>
+        <p class="done-text" id="done-msg" style="display: none;">Done!</p>
+    </div>
+
+    <script>
+        const quotes = [
+            "You're the reason I believe in love.",
+            "Every moment with you is a memory worth keeping.",
+            "Falling for you was the best decision I ever made.",
+            "I never want to stop making memories with you.",
+            "You are my today and all of my tomorrows.",
+            "The best part of my day is hearing your voice.",
+            "I loved you then, I love you still, always have, always will.",
+            "I found the one whom my soul loves.",
+            "With you, every love story becomes real.",
+            "My favorite place is inside your hug."
+        ];
+
+        const quoteEl = document.getElementById("quote");
+        const loadingDots = document.getElementById("loading-dots");
+        const doneMsg = document.getElementById("done-msg");
+
+        let lastQuoteIndex = -1;
+        let dotCount = 0;
+
+        const quoteInterval = setInterval(() => {
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * quotes.length);
+            } while (randomIndex === lastQuoteIndex); // Avoid immediate repetition
+
+            lastQuoteIndex = randomIndex;
+
+            quoteEl.style.opacity = 0;
+            setTimeout(() => {
+                quoteEl.textContent = quotes[randomIndex];
+                quoteEl.style.opacity = 1;
+            }, 300);
+        }, 2000);
+
+        const dotInterval = setInterval(() => {
+            dotCount = (dotCount + 1) % 4;
+            loadingDots.textContent = "Loading" + ".".repeat(dotCount);
+        }, 400);
+
+        setTimeout(() => {
+            clearInterval(quoteInterval);
+            clearInterval(dotInterval);
+            loadingDots.style.display = 'none';
+            doneMsg.style.display = 'block';
+
+            setTimeout(() => {
+                // Redirect to page defined by 'next' param or fallback to 'memories.php'
+                const urlParams = new URLSearchParams(window.location.search);
+                const next = urlParams.get('next') || 'memories.php';
+                window.location.href = next;
+            }, 500);
+        }, 5000);
+    </script>
+</body>
+</html>

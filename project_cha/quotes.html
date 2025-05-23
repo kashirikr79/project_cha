@@ -1,0 +1,174 @@
+
+
+<?php
+$host = 'localhost';
+$db = 'syasya_memories';
+$user = 'root';
+$pass = '';
+$conn = new mysqli($host, $user, $pass, $db);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+$quotes = $conn->query("SELECT * FROM quotes ORDER BY created_at DESC");
+if (!$quotes) {
+    die("Database query failed: " . $conn->error);
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quotes – Ariq & Syasya</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sacramento&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", sans-serif;
+            background: #fffafc;
+            color: #333;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px 20px;
+            background: #1c1c1c;
+            border-bottom: 3px dashed #ffb3c6;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .header h1 {
+            font-family: 'Sacramento', cursive;
+            font-size: 42px;
+            color: #ff4d79;
+        }
+
+        .quote-list {
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .quote-item {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #555;
+            animation: popIn 0.8s ease-in-out;
+        }
+
+        .quote-date {
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+            text-align: right;
+        }
+
+        .back-btn {
+            text-align: center;
+            margin: 20px;
+        }
+
+        .back-btn a {
+            background-color: #ff4d79;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(255,77,121,0.4);
+            transition: background-color 0.3s ease;
+            display: inline-block;
+        }
+
+        .back-btn a:hover {
+            background-color: #ff3366;
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .button-group {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.add-btn {
+    background-color: #ff99b3;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(255,153,179,0.4);
+    transition: background-color 0.3s ease;
+    margin-right: 10px;
+    display: inline-block;
+}
+
+.add-btn:hover {
+    background-color: #ff7a9c;
+}
+
+.back-btn {
+    background-color: #ff4d79;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(255,77,121,0.4);
+    transition: background-color 0.3s ease;
+    display: inline-block;
+}
+
+.back-btn:hover {
+    background-color: #ff3366;
+}
+
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Our Quotes 💖</h1>
+</div>
+
+<div class="quote-list">
+    <?php while ($quote = $quotes->fetch_assoc()): ?>
+        <div class="quote-item">
+            <?= nl2br(htmlspecialchars($quote['content'])) ?>
+            <div class="quote-date"><?= date("F j, Y g:i A", strtotime($quote['created_at'])) ?></div>
+        </div>
+    <?php endwhile; ?>
+</div>
+
+<div class="button-group">
+    <a class="add-btn" href="add_quote.php">➕ Add a Quote</a>
+    <a class="back-btn" href="home.php">← Back to Home</a>
+</div>
+
+</body>
+</html>

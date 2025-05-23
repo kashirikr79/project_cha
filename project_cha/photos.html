@@ -1,0 +1,294 @@
+<?php
+require 'db_connect.php';
+// Now you can use $conn to run your queries
+?>
+
+<?php
+$host = 'localhost';
+$db = 'syasya_memories';
+$user = 'root';
+$pass = '';
+$conn = new mysqli($host, $user, $pass, $db);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+$photos = $conn->query("SELECT * FROM photos ORDER BY created_at DESC");
+if (!$photos) {
+    die("Query failed: " . $conn->error);
+}
+
+$allPhotos = [];
+while ($row = $photos->fetch_assoc()) {
+    $allPhotos[] = $row;
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Photos – Ariq & Syasya</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sacramento&display=swap" rel="stylesheet" />
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #fffafc;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px 20px;
+            background: #1c1c1c;
+            border-bottom: 3px dashed #ffb3c6;
+        }
+
+        .header h1 {
+            font-family: 'Sacramento', cursive;
+            font-size: 42px;
+            color: #ff4d79;
+        }
+
+        .spotlight {
+            max-width: 800px;
+            margin: 30px auto;
+            position: relative;
+            height: 400px;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        .spotlight img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            cursor: default;
+        }
+
+        .spotlight img.active {
+            opacity: 1;
+            z-index: 2;
+        }
+
+        .photo-grid {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .photo-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .photo-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 28px rgba(0,0,0,0.2);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            pointer-events: none; /* avoid interference with click */
+        }
+
+        .photo-desc {
+            padding: 15px;
+            font-size: 14px;
+            color: #444;
+            user-select: none;
+        }
+
+        .add-btn {
+            text-align: center;
+            margin: 20px;
+        }
+
+        .add-btn a {
+            background-color: #ff4d79;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(255,77,121,0.4);
+            transition: background-color 0.3s ease;
+        }
+
+        .add-btn a:hover {
+            background-color: #ff3366;
+        }
+
+        /* Lightbox Styles */
+        #lightbox-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            cursor: pointer;
+        }
+
+        #lightbox-overlay img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 15px;
+            box-shadow: 0 0 40px rgba(255, 77, 121, 0.7);
+        }
+
+        #lightbox-overlay .close-btn {
+            position: fixed;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            z-index: 10000;
+            background: rgba(255, 77, 121, 0.8);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+        }
+        .add-btn {
+    text-align: center;
+    margin: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* space between buttons */
+}
+
+.add-btn a {
+    background-color: #ff4d79;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(255,77,121,0.4);
+    transition: background-color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-btn a:hover {
+    background-color: #ff3366;
+}
+
+/* Back button distinct but matching style */
+.back-btn {
+    background-color: #ccc;
+    color: #333;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.back-btn:hover {
+    background-color: #aaa;
+    color: #000;
+}
+
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Our Memories 📸</h1>
+</div>
+<div class="add-btn">
+    <a href="home.php" class="back-btn">← Back</a>
+    <a href="upload_photo.php">+ Add Photo</a>
+</div>
+
+<?php if (count($allPhotos) > 0): ?>
+    <div class="spotlight">
+        <?php foreach ($allPhotos as $index => $photo): ?>
+            <img src="<?= htmlspecialchars($photo['image_url']) ?>" class="<?= $index === 0 ? 'active' : '' ?>" alt="Spotlight" />
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
+
+<div class="photo-grid">
+    <?php foreach ($allPhotos as $photo): ?>
+        <div class="photo-card" data-img="<?= htmlspecialchars($photo['image_url']) ?>">
+            <img src="<?= htmlspecialchars($photo['image_url']) ?>" alt="Photo" />
+            <div class="photo-desc"><?= nl2br(htmlspecialchars($photo['description'])) ?></div>
+        </div>
+    <?php endforeach; ?>
+</div>
+
+<!-- Lightbox Overlay -->
+<div id="lightbox-overlay">
+    <span class="close-btn">&times;</span>
+    <img src="" alt="Zoomed photo" />
+</div>
+
+<script>
+    // Spotlight slideshow
+    const slides = document.querySelectorAll('.spotlight img');
+    let current = 0;
+    if (slides.length > 1) {
+        setInterval(() => {
+            slides[current].classList.remove('active');
+            current = (current + 1) % slides.length;
+            slides[current].classList.add('active');
+        }, 3000);
+    }
+
+    // Lightbox functionality
+    const lightbox = document.getElementById('lightbox-overlay');
+    const lightboxImage = lightbox.querySelector('img');
+    const closeBtn = lightbox.querySelector('.close-btn');
+
+    document.querySelectorAll('.photo-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const imgSrc = card.getAttribute('data-img');
+            lightboxImage.src = imgSrc;
+            lightbox.style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+        });
+    });
+
+    closeBtn.addEventListener('click', () => {
+        lightbox.style.display = 'none';
+        lightboxImage.src = '';
+        document.body.style.overflow = 'auto';
+    });
+
+    lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) {
+            lightbox.style.display = 'none';
+            lightboxImage.src = '';
+            document.body.style.overflow = 'auto';
+        }
+    });
+</script>
+
+</body>
+</html>

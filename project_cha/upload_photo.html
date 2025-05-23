@@ -1,0 +1,113 @@
+
+<?php
+$host = 'localhost';
+$db = 'syasya_memories';
+$user = 'root';
+$pass = '';
+$conn = new mysqli($host, $user, $pass, $db);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $description = $conn->real_escape_string($_POST['description']);
+
+    if (isset($_FILES['photo']) && $_FILES['photo']['error'] === 0) {
+        $targetDir = "uploads/";
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0777, true);
+        }
+
+        $fileName = basename($_FILES["photo"]["name"]);
+        $targetFile = $targetDir . time() . "_" . $fileName;
+        $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+        $allowed = ['jpg', 'jpeg', 'png', 'gif'];
+
+        if (in_array($imageFileType, $allowed)) {
+            if (move_uploaded_file($_FILES["photo"]["tmp_name"], $targetFile)) {
+                $stmt = $conn->prepare("INSERT INTO photos (image_url, description) VALUES (?, ?)");
+                $stmt->bind_param("ss", $targetFile, $description);
+                $stmt->execute();
+                $stmt->close();
+                header("Location: photos.php");
+                exit;
+            } else {
+                $error = "Upload failed.";
+            }
+        } else {
+            $error = "Only JPG, PNG, GIF allowed.";
+        }
+    } else {
+        $error = "Photo is required.";
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Photo</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background: #fffafc;
+            padding: 40px;
+        }
+        .form-box {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #ff4d79;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #999;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-box">
+    <h2>Upload a New Photo</h2>
+    <?php if (!empty($error)): ?>
+        <div class="error"><?= $error ?></div>
+    <?php endif; ?>
+    <form action="upload_photo.php" method="POST" enctype="multipart/form-data">
+        <input type="file" name="photo" accept="image/*" required>
+        <textarea name="description" placeholder="Write a short caption..." required></textarea>
+        <button type="submit">Upload Photo</button>
+    </form>
+    <a class="back-link" href="photos.php">← Back to Gallery</a>
+</div>
+
+</body>
+</html>

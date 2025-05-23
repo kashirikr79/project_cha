@@ -1,0 +1,189 @@
+<?php
+require 'db_connect.php';
+// Now you can use $conn to run your queries
+?>
+
+<?php
+$host = 'localhost';
+$db = 'syasya_memories';
+$user = 'root';
+$pass = '';
+$conn = new mysqli($host, $user, $pass, $db);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+$notes = $conn->query("SELECT * FROM notes ORDER BY created_at DESC");
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Notes – Ariq & Syasya</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sacramento&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", sans-serif;
+            background: #fffafc;
+            color: #333;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px 20px;
+            background: #1c1c1c;
+            border-bottom: 3px dashed #ffb3c6;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .header h1 {
+            font-family: 'Sacramento', cursive;
+            font-size: 42px;
+            color: #ff4d79;
+        }
+
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            padding: 30px 10%;
+        }
+
+        .memory {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            animation: popIn 0.8s ease-in-out;
+        }
+
+        .memory:hover {
+            transform: translateY(-5px);
+        }
+
+        .memory .caption {
+            padding: 15px;
+            font-size: 15px;
+            color: #555;
+            white-space: pre-wrap;
+        }
+
+        .add-memory,
+        .back-btn {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .add-memory a,
+        .back-btn a {
+            background-color: #ff4d79;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(255,77,121,0.4);
+            transition: background-color 0.3s ease;
+            display: inline-block;
+        }
+
+        .add-memory a:hover,
+        .back-btn a:hover {
+            background-color: #ff3366;
+        }
+
+        /* Loading Spinner */
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+        }
+
+        .spinner {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #ff4d79;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="loading">
+    <div class="spinner"></div>
+</div>
+
+<div class="header" style="display:none;">
+    <h1>Shared Notes 💌</h1>
+</div>
+
+<div class="memory-grid" style="display:none;">
+    <?php while($note = $notes->fetch_assoc()): ?>
+        <div class="memory">
+            <div class="caption">
+                <strong><?= htmlspecialchars($note['title']) ?></strong><br>
+                <small><?= date("F j, Y g:i A", strtotime($note['created_at'])) ?></small><br><br>
+                <?= nl2br(htmlspecialchars($note['content'])) ?>
+            </div>
+        </div>
+    <?php endwhile; ?>
+</div>
+
+<div class="add-memory" style="display:none;">
+    <a href="add_note.php">+ Write a Note</a>
+</div>
+
+<div class="back-btn" style="display:none;">
+    <a href="home.php">← Back to home</a>
+</div>
+
+<script>
+    // Simulate loading delay (or you can remove this and show immediately)
+    document.addEventListener("DOMContentLoaded", function() {
+        // Wait a bit to simulate loading
+        setTimeout(() => {
+            document.getElementById('loading').style.display = 'none';
+            document.querySelector('.header').style.display = 'block';
+            document.querySelector('.memory-grid').style.display = 'grid';
+            document.querySelector('.add-memory').style.display = 'block';
+            document.querySelector('.back-btn').style.display = 'block';
+        }, 800); // 0.8 seconds
+    });
+</script>
+
+</body>
+</html>
